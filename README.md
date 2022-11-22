@@ -1,5 +1,5 @@
 # k-space_masking_for_MRI_denoising
-k-space based MRI image denoising (on the example of Agilent FID data).
+Graduate k-space masking for MRI image denoising and blurring (on the example of Agilent FID data).
 
 ![Figure](Fig.png)
 
