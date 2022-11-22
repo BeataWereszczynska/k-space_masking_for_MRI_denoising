@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-k-space based MRI image denoising (for Agilent FID data)
+Graduate k-space masking for MRI image denoising and blurring
+(for Agilent FID data)
 
 Created on Sun Nov 20 2022
-Last modified on Mon Nov 21 2022
+Last modified on Tue Nov 22 2022
 
 @author: Beata Wereszczyńska
 """
@@ -14,7 +15,8 @@ import cv2
 
 def kspace_denoise(path, number_of_slices, picked_slice, r):
     """
-    k-space based MRI image denoising (for Agilent FID data).
+    Graduate k-space masking for MRI image denoising and blurring
+    (for Agilent FID data).
     Input:
         .fid folder location: path [str],
         total number of slices in the MRI experiment: number_of_slices [int],
@@ -48,7 +50,7 @@ def kspace_denoise(path, number_of_slices, picked_slice, r):
     ft2 = np.transpose(np.flip(ft2, (1,0)))
     ft2 = ft2 / (np.max(abs(ft2)) / np.max(abs(ft1))) # normalization
     
-    # k-space visualization
+    # visualization
     masked_k = masked_k / (np.max(abs(masked_k)) / np.max(abs(kspace)))
     plt.rcParams['figure.dpi'] = 600
     plt.subplot(141)
