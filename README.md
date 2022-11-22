@@ -1,4 +1,7 @@
 # k-space_masking_for_MRI_denoising
+
+[![DOI](https://zenodo.org/badge/568669180.svg)](https://zenodo.org/badge/latestdoi/568669180)
+
 Graduate k-space masking for MRI image denoising and blurring (on the example of Agilent FID data).
 
 ![Figure1](Fig1.png)
