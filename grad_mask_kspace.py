@@ -4,7 +4,7 @@ Graduate k-space masking for MRI image denoising and blurring
 (for Agilent FID data)
 
 Created on Sun Nov 20 2022
-Last modified on Tue Nov 22 2022
+Last modified on Fri Nov 25 2022
 
 @author: Beata Wereszczyńska
 """
@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 
-def kspace_denoise(path, number_of_slices, picked_slice, r):
+def grad_mask_kspace(path, number_of_slices, picked_slice, r):
     """
     Graduate k-space masking for MRI image denoising and blurring
     (for Agilent FID data).
@@ -29,7 +29,7 @@ def kspace_denoise(path, number_of_slices, picked_slice, r):
     kspace = echoes[picked_slice - 1 : echoes.shape[0] : number_of_slices, :]  # downsampling to one slice
     del path, echoes, number_of_slices, picked_slice
     
-    # k-space based denoising
+    # k-space masking
     mask_denoise = np.zeros(shape=kspace.shape)
     mask = np.zeros(shape=kspace.shape)
     for value in range(r, r+15, 2):
@@ -39,19 +39,20 @@ def kspace_denoise(path, number_of_slices, picked_slice, r):
     masked_k = np.multiply(kspace, mask_denoise)
     del mask, value, mask_denoise
     
+    # normalization
+    masked_k = masked_k / (np.max(abs(masked_k)) / np.max(abs(kspace)))
+    
     # reconstruct the original image
-    ft1 = np.fft.fft2(kspace)
+    ft1 = np.fft.fft2(kspace)                 # 2D FFT
     ft1 = np.fft.fftshift(ft1)                # fixing problem with corner being center of the image
     ft1 = np.transpose(np.flip(ft1, (1,0)))   # matching geometry with VnmrJ-calculated image (still a bit shifted)
     
     # reconstruct denoised image
-    ft2 = np.fft.fft2(masked_k)
-    ft2 = np.fft.fftshift(ft2)
-    ft2 = np.transpose(np.flip(ft2, (1,0)))
-    ft2 = ft2 / (np.max(abs(ft2)) / np.max(abs(ft1))) # normalization
+    ft2 = np.fft.fft2(masked_k)               # 2D FFT
+    ft2 = np.fft.fftshift(ft2)                # fixing problem with corner being center of the image
+    ft2 = np.transpose(np.flip(ft2, (1,0)))   # matching geometry with VnmrJ-calculated image (still a bit shifted)
     
     # visualization
-    masked_k = masked_k / (np.max(abs(masked_k)) / np.max(abs(kspace)))
     plt.rcParams['figure.dpi'] = 600
     plt.subplot(141)
     plt.title('Original k-space', fontdict = {'fontsize' : 7}), plt.axis('off')
@@ -63,15 +64,14 @@ def kspace_denoise(path, number_of_slices, picked_slice, r):
     plt.title('Original image', fontdict = {'fontsize' : 7}), plt.axis('off')
     plt.imshow(abs(ft1), cmap=plt.get_cmap('gray'))
     plt.subplot(144)
-    plt.title('Denoised image', fontdict = {'fontsize' : 7}), plt.axis('off')
+    plt.title('New image', fontdict = {'fontsize' : 7}), plt.axis('off')
     plt.imshow(abs(ft2), cmap=plt.get_cmap('gray'))
     plt.tight_layout(pad=0, w_pad=0.2, h_pad=0)
     plt.show()
-    
-    del kspace, masked_k, r
+    del r
     
     # return data
-    return ft1, ft2
+    return kspace, masked_k, ft1, ft2
 
 
 def main():
@@ -82,9 +82,13 @@ def main():
 
 
     # running calculations and retrieving the results
-    ft1, ft2 = kspace_denoise(path, number_of_slices, picked_slice, r)
+    k, km, ft1, ft2 = grad_mask_kspace(path, number_of_slices, picked_slice, r)
     
     # creating global variables to be available after the run completion
+    global MRI_k
+    MRI_k = k
+    global MRI_km
+    MRI_km = km
     global MRI_ft1
     MRI_ft1 = ft1
     global MRI_ft2
@@ -92,5 +96,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-    
+    main()    
