@@ -6,7 +6,7 @@ Graduate k-space masking for MRI image denoising and blurring (on the example of
 ![Figure2](Fig2.png)
 
 ## The repository contains:
-1. Python script kspace_denoise.py.
+1. Python script grad_mask_kspace.py.
 2. Description.pdf presenting:
 - short introduction to the topic,
 - how the code works,
