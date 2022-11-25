@@ -80,7 +80,6 @@ def main():
     picked_slice = 116                # selected slice number [int]
     r = 56                            # radius for k-space masking in pixels [int]
 
-
     # running calculations and retrieving the results
     k, km, ft1, ft2 = grad_mask_kspace(path, number_of_slices, picked_slice, r)
     
